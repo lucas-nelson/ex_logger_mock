@@ -7,6 +7,7 @@ defmodule ExLoggerMock.MixProject do
     [
       app: :ex_logger_mock,
       deps: deps(),
+      docs: docs(),
       description: "A mock logging backend for Elixir unit tests",
       elixir: "~> 1.0",
       homepage_url: "https://github.com/lucas-nelson/ex_logger_mock",
@@ -27,6 +28,12 @@ defmodule ExLoggerMock.MixProject do
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:excoveralls, "~> 0.10.1", only: :test, runtime: false},
       {:mix_test_watch, "~> 0.6", only: :test, runtime: false}
+    ]
+  end
+
+  defp docs do
+    [
+      main: "ExLoggerMock.Backend"
     ]
   end
 

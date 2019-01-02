@@ -22,4 +22,5 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 ex_logger_mock-*.tar
 
+.DS_Store
 .elixir_ls
