@@ -9,7 +9,7 @@ The package can be installed by adding `ex_logger_mock` to the list of dependenc
 ```elixir
 def deps do
   [
-    {:ex_logger_mock, "~> 1.0"}
+    {:ex_logger_mock, "~> 1.0", only: :test, runtime: false}
   ]
 end
 ```
