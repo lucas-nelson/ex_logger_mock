@@ -5,7 +5,8 @@ defmodule ExLoggerMock.BackendTest do
 
   alias ExLoggerMock.Backend
 
-  @state %{name: "ex_logger_mock"}
+  @state %{application_filter: [], name: "ex_logger_mock"}
+  @state_with_filter %{application_filter: [:my_app], name: "ex_logger_mock"}
   @timestamp {{2019, 1, 1}, {0, 0, 0, 0}}
 
   describe "init/1" do
@@ -17,7 +18,7 @@ defmodule ExLoggerMock.BackendTest do
   describe "handle_event/2" do
     test "sends a message back with the log details" do
       pid = self()
-      metadata = [pid: pid]
+      metadata = [application: :my_app, pid: pid]
 
       assert Backend.handle_event(
                {:info, pid, {Logger, "log message", @timestamp, metadata}},
@@ -27,9 +28,33 @@ defmodule ExLoggerMock.BackendTest do
       assert_receive {:ex_logger_mock, {:info, "log message", @timestamp, ^metadata}}
     end
 
+    test "sends a message when the application is the filter list" do
+      pid = self()
+      metadata = [application: :my_app, pid: pid]
+
+      assert Backend.handle_event(
+               {:info, pid, {Logger, "log message", @timestamp, metadata}},
+               @state_with_filter
+             ) == {:ok, @state_with_filter}
+
+      assert_receive {:ex_logger_mock, {:info, "log message", @timestamp, ^metadata}}
+    end
+
+    test "does not send a message when the application is the filter list" do
+      pid = self()
+      metadata = [application: :other_app, pid: pid]
+
+      assert Backend.handle_event(
+               {:info, pid, {Logger, "log message", @timestamp, metadata}},
+               @state_with_filter
+             ) == {:ok, @state_with_filter}
+
+      refute_receive {:ex_logger_mock, {:info, "log message", @timestamp, ^metadata}}
+    end
+
     test "ignores messages when we are not the group leader" do
       pid = spawn(fn -> nil end)
-      metadata = [pid: pid]
+      metadata = [application: :my_app, pid: pid]
 
       assert Backend.handle_event(
                {:info, pid, {Logger, "log message", @timestamp, metadata}},

@@ -27,6 +27,16 @@ config :logger,
   backends: [{ExLoggerMock.Backend, :ex_logger_mock}]
 ```
 
+Some packages, e.g. Rollbax, don't like receiving unexpected messages. You can limit the applications
+that will be sent a message with extra configuration:
+
+```elixir
+config :logger,
+  backends: [{ExLoggerMock.Backend, :ex_logger_mock}]
+
+config :ex_logger_mock, application_filter: [:my_app, :my_app_web]
+```
+
 ## Use
 
 The log calls themselves do not change. Without the `:console` backend, you won't see log output

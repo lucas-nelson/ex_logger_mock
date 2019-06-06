@@ -17,7 +17,7 @@ defmodule ExLoggerMock.MixProject do
       source_url: "https://github.com/lucas-nelson/ex_logger_mock",
       start_permanent: Mix.env() == :prod,
       test_coverage: [tool: ExCoveralls],
-      version: "1.0.0"
+      version: "1.1.0"
     ]
   end
 
