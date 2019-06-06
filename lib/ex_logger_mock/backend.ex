@@ -20,7 +20,11 @@ defmodule ExLoggerMock.Backend do
   @spec init({ExLoggerMock.Backend, binary()}) :: {:ok, %{name: binary()}}
   @doc "intialise from configuration, but we have no config"
   def init({__MODULE__, name}) do
-    {:ok, %{name: name}}
+    {:ok,
+     %{
+       application_filter: Application.get_env(:ex_logger_mock, :application_filter, []),
+       name: name
+     }}
   end
 
   @spec handle_event({atom(), pid(), {atom(), binary(), tuple(), list()}}, map()) :: {:ok, map()}
@@ -61,9 +65,15 @@ defmodule ExLoggerMock.Backend do
     {:ok, state}
   end
 
-  def handle_event({level, _group_leader, {Logger, message, timestamp, metadata}}, state) do
-    metadata[:pid]
-    |> send({:ex_logger_mock, {level, message, timestamp, metadata}})
+  def handle_event(
+        {level, _group_leader, {Logger, message, timestamp, metadata}},
+        %{application_filter: application_filter} = state
+      ) do
+    with application when not is_nil(application) <- metadata[:application],
+         pid when not is_nil(pid) <- metadata[:pid],
+         true <- should_send_to_application?(application, application_filter) do
+      send(pid, {:ex_logger_mock, {level, message, timestamp, metadata}})
+    end
 
     {:ok, state}
   end
@@ -74,4 +84,10 @@ defmodule ExLoggerMock.Backend do
   @spec handle_call(any(), any()) :: {:ok, :ok, any()}
   @doc "ignore any 'call' notification, including :configure"
   def handle_call(_request, state), do: {:ok, :ok, state}
+
+  defp should_send_to_application?(_, []), do: true
+
+  defp should_send_to_application?(application, application_filter) do
+    Enum.member?(application_filter, application)
+  end
 end
