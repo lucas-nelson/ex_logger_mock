@@ -34,6 +34,15 @@ that will be sent a message with extra configuration:
 config :logger,
   backends: [{ExLoggerMock.Backend, :ex_logger_mock}]
 
+config :ex_logger_mock, application_reject: [:rollbax]
+```
+
+or:
+
+```elixir
+config :logger,
+  backends: [{ExLoggerMock.Backend, :ex_logger_mock}]
+
 config :ex_logger_mock, application_filter: [:my_app, :my_app_web]
 ```
 

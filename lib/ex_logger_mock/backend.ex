@@ -23,6 +23,7 @@ defmodule ExLoggerMock.Backend do
     {:ok,
      %{
        application_filter: Application.get_env(:ex_logger_mock, :application_filter, []),
+       application_reject: Application.get_env(:ex_logger_mock, :application_reject, []),
        name: name
      }}
   end
@@ -65,13 +66,11 @@ defmodule ExLoggerMock.Backend do
     {:ok, state}
   end
 
-  def handle_event(
-        {level, _group_leader, {Logger, message, timestamp, metadata}},
-        %{application_filter: application_filter} = state
-      ) do
+  def handle_event({level, _group_leader, {Logger, message, timestamp, metadata}}, state) do
     with application when not is_nil(application) <- metadata[:application],
          pid when not is_nil(pid) <- metadata[:pid],
-         true <- should_send_to_application?(application, application_filter) do
+         true <- application_in_filter?(application, state),
+         false <- application_in_reject?(application, state) do
       send(pid, {:ex_logger_mock, {level, message, timestamp, metadata}})
     end
 
@@ -85,9 +84,17 @@ defmodule ExLoggerMock.Backend do
   @doc "ignore any 'call' notification, including :configure"
   def handle_call(_request, state), do: {:ok, :ok, state}
 
-  defp should_send_to_application?(_, []), do: true
-
-  defp should_send_to_application?(application, application_filter) do
+  defp application_in_filter?(application, %{application_filter: application_filter})
+       when length(application_filter) > 0 do
     Enum.member?(application_filter, application)
   end
+
+  defp application_in_filter?(_, _), do:  true
+
+  defp application_in_reject?(application, %{application_reject: application_filter})
+       when length(application_filter) > 0 do
+    Enum.member?(application_filter, application)
+  end
+
+  defp application_in_reject?(_, _), do:  false
 end

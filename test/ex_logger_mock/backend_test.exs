@@ -5,8 +5,17 @@ defmodule ExLoggerMock.BackendTest do
 
   alias ExLoggerMock.Backend
 
-  @state %{application_filter: [], name: "ex_logger_mock"}
-  @state_with_filter %{application_filter: [:my_app], name: "ex_logger_mock"}
+  @state %{application_filter: [], application_reject: [], name: "ex_logger_mock"}
+  @state_with_filter %{
+    application_filter: [:my_app],
+    application_reject: [],
+    name: "ex_logger_mock"
+  }
+  @state_with_reject %{
+    application_filter: [],
+    application_reject: [:reject_app],
+    name: "ex_logger_mock"
+  }
   @timestamp {{2019, 1, 1}, {0, 0, 0, 0}}
 
   describe "init/1" do
@@ -40,7 +49,19 @@ defmodule ExLoggerMock.BackendTest do
       assert_receive {:ex_logger_mock, {:info, "log message", @timestamp, ^metadata}}
     end
 
-    test "does not send a message when the application is the filter list" do
+    test "does not send a message when the application is not in the filter list" do
+      pid = self()
+      metadata = [application: :reject_app, pid: pid]
+
+      assert Backend.handle_event(
+               {:info, pid, {Logger, "log message", @timestamp, metadata}},
+               @state_with_reject
+             ) == {:ok, @state_with_reject}
+
+      refute_receive {:ex_logger_mock, {:info, "log message", @timestamp, ^metadata}}
+    end
+
+    test "does not send a message when the applicatiojn is in the reject list" do
       pid = self()
       metadata = [application: :other_app, pid: pid]
 
