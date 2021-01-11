@@ -46,6 +46,15 @@ config :logger,
 config :ex_logger_mock, application_filter: [:my_app, :my_app_web]
 ```
 
+You can optionally reject messages using a callback.
+
+```elixir
+config :logger,
+  backends: [{ExLoggerMock.Backend, :ex_logger_mock}]
+
+config :ex_logger_mock, message_reject: fn message -> String.match?(message, ~r/MyXQL.Connection/) end
+```
+
 ## Use
 
 The log calls themselves do not change. Without the `:console` backend, you won't see log output
