@@ -114,6 +114,7 @@ defmodule ExLoggerMock.BackendTest do
       pid = self()
       metadata = [application: :other_app, pid: pid]
       state = state_with_message_reject()
+
       assert Backend.handle_event(
                {:info, pid, {Logger, "ignore this", @timestamp, metadata}},
                state

@@ -91,15 +91,15 @@ defmodule ExLoggerMock.Backend do
     Enum.member?(application_filter, application)
   end
 
-  defp application_in_filter?(_, _), do:  true
+  defp application_in_filter?(_, _), do: true
 
   defp application_in_reject?(application, %{application_reject: application_filter})
        when length(application_filter) > 0 do
     Enum.member?(application_filter, application)
   end
 
-  defp application_in_reject?(_, _), do:  false
+  defp application_in_reject?(_, _), do: false
 
-  defp message_in_reject?(message, %{message_reject: nil}), do: false
+  defp message_in_reject?(_message, %{message_reject: nil}), do: false
   defp message_in_reject?(message, %{message_reject: callback}), do: callback.(message)
 end
