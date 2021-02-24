@@ -10,14 +10,14 @@ defmodule ExLoggerMock.MixProject do
       docs: docs(),
       description: "A mock logging backend for Elixir unit tests",
       elixir: "~> 1.10",
-      homepage_url: "https://github.com/lucas-nelson/ex_logger_mock",
+      homepage_url: "https://github.com/blake-education/ex_logger_mock",
       name: "ExLoggerMock",
       package: package(),
       preferred_cli_env: preferred_cli_env(),
-      source_url: "https://github.com/lucas-nelson/ex_logger_mock",
+      source_url: "https://github.com/blake-education/ex_logger_mock",
       start_permanent: Mix.env() == :prod,
       test_coverage: [tool: ExCoveralls],
-      version: "1.1.1"
+      version: "1.2.0"
     ]
   end
 
@@ -40,7 +40,7 @@ defmodule ExLoggerMock.MixProject do
   defp package do
     [
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/lucas-nelson/ex_logger_mock"},
+      links: %{"GitHub" => "https://github.com/blake-education/ex_logger_mock"},
       name: "ex_logger_mock"
     ]
   end

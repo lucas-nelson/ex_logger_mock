@@ -24,6 +24,7 @@ defmodule ExLoggerMock.Backend do
      %{
        application_filter: Application.get_env(:ex_logger_mock, :application_filter, []),
        application_reject: Application.get_env(:ex_logger_mock, :application_reject, []),
+       message_reject: Application.get_env(:ex_logger_mock, :message_reject, nil),
        name: name
      }}
   end
@@ -70,7 +71,8 @@ defmodule ExLoggerMock.Backend do
     with application when not is_nil(application) <- metadata[:application],
          pid when not is_nil(pid) <- metadata[:pid],
          true <- application_in_filter?(application, state),
-         false <- application_in_reject?(application, state) do
+         false <- application_in_reject?(application, state),
+         false <- message_in_reject?(message, state) do
       send(pid, {:ex_logger_mock, {level, message, timestamp, metadata}})
     end
 
@@ -89,12 +91,15 @@ defmodule ExLoggerMock.Backend do
     Enum.member?(application_filter, application)
   end
 
-  defp application_in_filter?(_, _), do:  true
+  defp application_in_filter?(_, _), do: true
 
   defp application_in_reject?(application, %{application_reject: application_filter})
        when length(application_filter) > 0 do
     Enum.member?(application_filter, application)
   end
 
-  defp application_in_reject?(_, _), do:  false
+  defp application_in_reject?(_, _), do: false
+
+  defp message_in_reject?(_message, %{message_reject: nil}), do: false
+  defp message_in_reject?(message, %{message_reject: callback}), do: callback.(message)
 end
